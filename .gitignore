@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 *.so
 
+#IntelliJ IDEA
+.idea/
 # Distribution / packaging
 .Python
 build/
