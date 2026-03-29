@@ -6,9 +6,11 @@
 - Fecha: Marzo 2026
 
 ## 1. Propósito:
+
 Demostrar los conocimientos adquiridos en la creación de un proyecto en Django.
 
 ## 2. Requerimientos:
+
 - Cree un Proyecto en Django con al menos una Aplicación
 - Su Aplicación debe tener al menos 4 Models (Modelos o Tablas)
 - Sus Models deben contener al menos 2 validaciones personalizadas
@@ -18,12 +20,13 @@ Demostrar los conocimientos adquiridos en la creación de un proyecto en Django.
 - Debe incluir el archivo requirements.txt en la raíz del repositorio
 
 ## 3. Implementación:
-✅ **Proyecto Django:** `ecoapp` con aplicación `inventario`  
-✅ **4 Models:** `Persona`, `TipoTarea`, `Tarea`, `TareaAsignada` (además de `Categoria` y `Producto` existentes)  
+
+✅ **Proyecto Django:** `ecoapp` con aplicación `proyecto`  
+✅ **4 Models:** `Persona`, `TipoTarea`, `Tarea`, `TareaAsignada` en app `proyecto`  
 ✅ **Validaciones personalizadas:** Fecha de nacimiento futura, rango de prioridad, fechas de tarea, email único  
-✅ **Admin Django:** 6 models registrados con configuraciones personalizadas  
-✅ **DRF ViewSets:** `PersonaViewSet`, `TipoTareaViewSet` (más otros implementados)  
-✅ **Custom APIs:** `tareas_estadisticas`, `tareas_por_persona`  
+✅ **Admin Django:** 4 models registrados con configuraciones personalizadas  
+✅ **DRF ViewSets:** `PersonaViewSet`, `TipoTareaViewSet` en app `proyecto`  
+✅ **Custom APIs:** `tareas_estadisticas`, `tareas_por_persona` en app `proyecto`  
 ✅ **requirements.txt:** Incluido con todas las dependencias necesarias
 
 ## Instalar dependencias
@@ -46,25 +49,19 @@ python manage.py runserver
 python manage.py createsuperuser
 ```
 
-## Cargar datos iniciales de Inventario
-
-```sh
-python manage.py loaddata dump_inventario.json
-```
-
 ## API Endpoints Disponibles:
 
 ### ViewSets (CRUD Operations):
 
-- `GET/POST /inventario/personas/` - Listar y crear personas
-- `GET/PUT/DELETE /inventario/personas/{id}/` - Detalle, actualizar y eliminar persona
-- `GET/POST /inventario/tipos-tarea/` - Listar y crear tipos de tarea
-- `GET/PUT/DELETE /inventario/tipos-tarea/{id}/` - Detalle, actualizar y eliminar tipo de tarea
+- `GET/POST /proyecto/personas` - Listar y crear personas
+- `GET/PUT/DELETE /proyecto/personas/{id}/` - Detalle, actualizar y eliminar persona
+- `GET/POST /proyecto/tipos-tarea` - Listar y crear tipos de tarea
+- `GET/PUT/DELETE /proyecto/tipos-tarea/{id}/` - Detalle, actualizar y eliminar tipo de tarea
 
 ### Custom APIs:
 
-- `GET /inventario/tareas-estadisticas/` - Estadísticas de tareas (totales, completadas, por tipo, etc.)
-- `GET /inventario/personas/{persona_id}/tareas/` - Todas las tareas asignadas a una persona específica
+- `GET /proyecto/tareas-estadisticas` - Estadísticas de tareas (totales, completadas, por tipo, etc.)
+- `GET /proyecto/personas/{persona_id}/tareas` - Todas las tareas asignadas a una persona específica
 
 ### Parámetros de búsqueda y ordenamiento:
 
@@ -74,7 +71,6 @@ python manage.py loaddata dump_inventario.json
 ### Autenticación:
 
 - AllowAny (sin requerir autenticación para desarrollo)
-- Session Authentication (para admin de Django)
-- Basic Authentication (para desarrollo/testing)
+- Session Authentication (para admin de Django es user:admin / pass:admin)
 
 Todos los endpoints tienen acceso público sin requerir autenticación.
