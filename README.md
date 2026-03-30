@@ -106,4 +106,5 @@ curl http://localhost:8000/proyecto/all-tasks?state=pending
 - **Session Authentication** (para admin de Django user:admin / pass:admin)
 
 Todos los endpoints tienen acceso público sin requerir autenticación.
+http://localhost:8000/proyecto/tasks ver el Frontend de la siguiente manera
 ![img.png](img.png)
