@@ -11,11 +11,9 @@ class TasksUI {
 
   loadInitialData = async () => {
     try {
-      // Load people and statistics first
       await this.loadPeople();
       await this.loadStatistics();
 
-      // Load all tasks initially
       await this.loadAllTasks();
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -69,12 +67,15 @@ class TasksUI {
           person_name: `${data.persona.nombre} ${data.persona.apellido}`,
           person_id: data.persona.id
         }));
+        this.renderTasks(this.tasks);
       } else {
         await this.loadAllTasks();
         return;
       }
 
-      this.applyLocalFilters();
+      if (!personId) {
+        this.applyLocalFilters();
+      }
     } catch (error) {
       console.error('Error loading tasks:', error);
       this.showError('Error loading tasks');
@@ -132,7 +133,7 @@ class TasksUI {
       select.removeChild(select.lastChild);
     }
 
-    this.people.forEach(person => {
+    this.people.forEach((person, index) => {
       const option = document.createElement('option');
       option.value = person.id;
       option.textContent = `${person.nombre} ${person.apellido}`;
@@ -140,6 +141,11 @@ class TasksUI {
     });
   }
 
+  resetFilters = () => {
+    document.getElementById('persona-filter').value = '';
+    document.getElementById('estado-filter').value = '';
+    this.loadAllTasks();
+  }
 
   renderTasks = (tasks) => {
     const container = document.getElementById('tareas-container');
@@ -199,11 +205,15 @@ class TasksUI {
       errorDiv.style.display = 'none';
     }, 5000);
   }
-
-  reloadTasks = () => this.loadAllTasks()
 }
 
 let tasksUI;
+
+const resetFilters = () => {
+  if (tasksUI) {
+    tasksUI.resetFilters();
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   tasksUI = new TasksUI();

@@ -61,12 +61,12 @@ def tareas_estadisticas(request):
 
 
 @api_view(['GET'])
-def tareas_por_persona(request, persona_id):
+def tareas_por_persona(request, person_id):
     try:
-        persona = Persona.objects.get(id=persona_id)
+        persona = Persona.objects.get(id=person_id)
         tareas_asignadas = TareaAsignada.objects.filter(persona=persona).select_related('tarea', 'tarea__tipo_tarea')
 
-        estado = request.GET.get('estado', '').lower()
+        estado = request.GET.get('state', '').lower()
         if estado == 'completed':
             tareas_asignadas = tareas_asignadas.filter(completada=True)
         elif estado == 'pending':
@@ -109,7 +109,7 @@ def tareas_por_persona(request, persona_id):
 def todas_tareas(request):
     tareas_asignadas = TareaAsignada.objects.all().select_related('persona', 'tarea', 'tarea__tipo_tarea')
 
-    estado = request.GET.get('estado', '').lower()
+    estado = request.GET.get('state', '').lower()
 
     if estado == 'completed':
         tareas_asignadas = tareas_asignadas.filter(completada=True)

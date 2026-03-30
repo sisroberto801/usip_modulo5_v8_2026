@@ -24,23 +24,23 @@ class TasksAPI {
         }
     }
 
-    getStatistics = async () => this.request('tareas-estadisticas')
+    getStatistics = async () => this.request('tasks-statistics')
 
-    getPeople = async () => this.request('personas')
+    getPeople = async () => this.request('person')
 
     getTasksByPerson = async (personId, estado = null) => {
-        let endpoint = `personas/${personId}/tareas`;
+        let endpoint = `person/${personId}/tasks`;
         if (estado) {
-            endpoint += `?estado=${encodeURIComponent(estado)}`;
+            endpoint += `?state=${encodeURIComponent(estado)}`;
         }
         return this.request(endpoint);
     }
 
     getAllTasks = async (estado = null) => {
         try {
-            let endpoint = 'todas-tareas';
+            let endpoint = 'all-tasks';
             if (estado) {
-                endpoint += `?estado=${encodeURIComponent(estado)}`;
+                endpoint += `?state=${encodeURIComponent(estado)}`;
             }
             
             const data = await this.request(endpoint);

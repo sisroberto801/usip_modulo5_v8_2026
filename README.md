@@ -53,22 +53,22 @@ python manage.py createsuperuser
 
 ### ViewSets (CRUD Operations):
 
-- `GET/POST /proyecto/personas` - Listar y crear personas
-- `GET/PUT/DELETE /proyecto/personas/{id}` - Detalle, actualizar y eliminar persona
-- `GET/POST /proyecto/tipos-tarea` - Listar y crear tipos de tarea
-- `GET/PUT/DELETE /proyecto/tipos-tarea/{id}` - Detalle, actualizar y eliminar tipo de tarea
+- `GET/POST /proyecto/person` - Listar y crear personas
+- `GET/PUT/DELETE /proyecto/person/{id}` - Detalle, actualizar y eliminar persona
+- `GET/POST /proyecto/task-types` - Listar y crear tipos de tarea
+- `GET/PUT/DELETE /proyecto/task-types/{id}` - Detalle, actualizar y eliminar tipo de tarea
 
 ### Custom APIs:
 
-- `GET /proyecto/tareas-estadisticas` - Estadísticas generales de tareas (totales, completadas, pendientes, porcentaje)
-- `GET /proyecto/personas/{persona_id}/tareas` - Todas las tareas asignadas a una persona específica
-  - **Parámetro opcional:** `?estado=completed` o `?estado=pending` para filtrar por estado
-- `GET /proyecto/todas-tareas` - Todas las tareas asignadas del sistema con información de personas
-  - **Parámetro opcional:** `?estado=completed` o `?estado=pending` para filtrar por estado
+- `GET /proyecto/tasks-statistics` - Estadísticas generales de tareas (totales, completadas, pendientes, porcentaje)
+- `GET /proyecto/person/{persona_id}/tasks` - Todas las tareas asignadas a una persona específica
+  - **Parámetro opcional:** `?state=completed` o `?state=pending` para filtrar por estado
+- `GET /proyecto/all-tasks` - Todas las tareas asignadas del sistema con información de personas
+  - **Parámetro opcional:** `?state=completed` o `?state=pending` para filtrar por estado
 
 ### Frontend Interface:
 
-- `GET /proyecto/tareas` - Interfaz web para gestión y visualización de tareas
+- `GET /proyecto/tasks` - Interfaz web para gestión y visualización de tareas
 
 ### Parámetros de búsqueda y ordenamiento:
 
@@ -79,25 +79,25 @@ python manage.py createsuperuser
 
 ```bash
 # Obtener todas las personas
-curl http://localhost:8000/proyecto/personas
+curl http://localhost:8000/proyecto/person
 
 # Buscar persona por nombre
-curl http://localhost:8000/proyecto/personas?search=Roberto
+curl http://localhost:8000/proyecto/person?search=Roberto
 
 # Obtener estadísticas de tareas
-curl http://localhost:8000/proyecto/tareas-estadisticas
+curl http://localhost:8000/proyecto/tasks-statistics
 
 # Obtener tareas de una persona específica
-curl http://localhost:8000/proyecto/personas/1/tareas
+curl http://localhost:8000/proyecto/person/1/tasks
 
 # Obtener tareas completadas de una persona específica
-curl http://localhost:8000/proyecto/personas/1/tareas?estado=completed
+curl http://localhost:8000/proyecto/person/1/tasks?state=completed
 
 # Obtener todas las tareas asignadas
-curl http://localhost:8000/proyecto/todas-tareas
+curl http://localhost:8000/proyecto/all-tasks
 
 # Obtener solo tareas pendientes
-curl http://localhost:8000/proyecto/todas-tareas?estado=pending
+curl http://localhost:8000/proyecto/all-tasks?state=pending
 ```
 
 ### Autenticación:
@@ -106,3 +106,4 @@ curl http://localhost:8000/proyecto/todas-tareas?estado=pending
 - **Session Authentication** (para admin de Django user:admin / pass:admin)
 
 Todos los endpoints tienen acceso público sin requerir autenticación.
+![img_1.png](img_1.png)
