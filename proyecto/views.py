@@ -11,6 +11,13 @@ from .serializers import (
 )
 
 
+def tareas_view(request):
+    """
+    Vista para mostrar el template de tareas con frontend JavaScript
+    """
+    return render(request, 'tareas/base.html')
+
+
 class PersonaViewSet(viewsets.ModelViewSet):
     queryset = Persona.objects.all()
     serializer_class = PersonaSerializer
@@ -29,8 +36,8 @@ def tareas_estadisticas(request):
     """
     API personalizada que devuelve estadísticas de tareas
     """
-    total_tareas = Tarea.objects.count()
-    tareas_completadas = Tarea.objects.filter(completada=True).count()
+    total_tareas = TareaAsignada.objects.count()
+    tareas_completadas = TareaAsignada.objects.filter(completada=True).count()
     tareas_pendientes = total_tareas - tareas_completadas
     
     tareas_por_tipo = Tarea.objects.values('tipo_tarea__nombre').annotate(
@@ -93,3 +100,41 @@ def tareas_por_persona(request, persona_id):
         
     except Persona.DoesNotExist:
         return Response({'error': 'Persona no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def todas_tareas(request):
+    """
+    API personalizada que devuelve todas las tareas asignadas del sistema
+    """
+    tareas_asignadas = TareaAsignada.objects.all().select_related('persona', 'tarea', 'tarea__tipo_tarea')
+    
+    data = []
+    for asignacion in tareas_asignadas:
+        data.append({
+            'id': asignacion.id,
+            'tarea': {
+                'id': asignacion.tarea.id,
+                'titulo': asignacion.tarea.titulo,
+                'descripcion': asignacion.tarea.descripcion,
+                'tipo_tarea': asignacion.tarea.tipo_tarea.nombre,
+                'fecha_inicio': asignacion.tarea.fecha_inicio,
+                'fecha_fin': asignacion.tarea.fecha_fin,
+                'completada': asignacion.tarea.completada
+            },
+            'persona': {
+                'id': asignacion.persona.id,
+                'nombre': asignacion.persona.nombre,
+                'apellido': asignacion.persona.apellido,
+                'email': asignacion.persona.email
+            },
+            'fecha_asignacion': asignacion.fecha_asignacion,
+            'completada': asignacion.completada
+        })
+    
+    return Response({
+        'tareas_asignadas': data,
+        'total_tareas': len(data),
+        'tareas_completadas': len([t for t in data if t['completada']]),
+        'tareas_pendientes': len([t for t in data if not t['completada']])
+    }, status=status.HTTP_200_OK)

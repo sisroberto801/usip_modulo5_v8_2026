@@ -1,0 +1,234 @@
+class TasksUI {
+  constructor() {
+    this.tasks = [];
+    this.people = [];
+    this.init();
+  }
+
+  init = () => {
+    this.setupEventListeners();
+    this.loadInitialData();
+  }
+
+  setupEventListeners = () => {
+    document.getElementById('estado-filter').addEventListener('change', () => this.applyLocalFilters());
+  }
+
+  loadInitialData = async () => {
+    try {
+      // Load people and statistics first
+      await this.loadPeople();
+      await this.loadStatistics();
+      
+      // Load all tasks initially
+      await this.loadAllTasks();
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      this.showError('Error loading initial data');
+    }
+  }
+
+  loadAllTasks = async () => {
+    try {
+      this.showLoading('tareas-container');
+      console.log('Loading all tasks...');
+      this.tasks = await tasksAPI.getAllTasks();
+      console.log('Tasks loaded:', this.tasks);
+      this.applyLocalFilters();
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      this.showError('Error loading tasks');
+      document.getElementById('tareas-container').innerHTML = '<p>Could not load tasks</p>';
+    }
+  }
+
+  applyLocalFilters = () => {
+    const personId = document.getElementById('persona-filter').value;
+    const status = document.getElementById('estado-filter').value;
+    
+    console.log('Applying local filters - PersonId:', personId, 'Status:', status);
+    console.log('Available tasks:', this.tasks);
+    
+    let filteredTasks = this.tasks;
+    
+    // Filter by person
+    if (personId) {
+      filteredTasks = filteredTasks.filter(task => task.person_id == personId);
+    }
+    
+    // Filter by status
+    if (status) {
+      const isCompleted = status === 'completada';
+      filteredTasks = filteredTasks.filter(task => task.completada === isCompleted);
+    }
+    
+    console.log('Filtered tasks:', filteredTasks);
+    this.renderTasks(filteredTasks);
+  }
+
+  loadTasks = async () => {
+    const personId = document.getElementById('persona-filter').value;
+    console.log('Update button clicked - Current personId:', personId);
+
+    try {
+      if (personId) {
+        // Load tasks for specific person
+        this.showLoading('tareas-container');
+        console.log('Loading tasks for person:', personId);
+        const data = await tasksAPI.getTasksByPerson(personId);
+        console.log('Person tasks response:', data);
+        
+        // Transform data to match expected format
+        const personTasks = data.tareas_asignadas || [];
+        this.tasks = personTasks.map(task => ({
+          ...task,
+          person_name: `${data.persona.nombre} ${data.persona.apellido}`,
+          person_id: data.persona.id
+        }));
+        console.log('Transformed person tasks:', this.tasks);
+      } else {
+        // Load all tasks when "Todas" is selected
+        await this.loadAllTasks();
+        return;
+      }
+
+      this.applyLocalFilters();
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      this.showError('Error loading tasks');
+      document.getElementById('tareas-container').innerHTML = '<p>Could not load tasks</p>';
+    }
+  }
+
+  
+  loadStatistics = async () => {
+    try {
+      const stats = await tasksAPI.getStatistics();
+      this.renderStatistics(stats);
+    } catch (error) {
+      console.error('Error loading statistics:', error);
+      document.getElementById('stats').innerHTML = '<div class="error">Error loading statistics</div>';
+    }
+  }
+
+  renderStatistics = (stats) => {
+    document.getElementById('stats').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-number">${stats.total_tareas}</div>
+                <div>Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${stats.tareas_completadas}</div>
+                <div>Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${stats.tareas_pendientes}</div>
+                <div>Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${stats.porcentaje_completado}%</div>
+                <div>% Completed</div>
+            </div>
+        `;
+  }
+
+  loadPeople = async () => {
+    try {
+      const people = await tasksAPI.getPeople();
+      this.people = people.results || people;
+      this.renderPeopleFilter();
+    } catch (error) {
+      console.error('Error loading people:', error);
+      this.showError('Error loading people');
+    }
+  }
+
+  renderPeopleFilter = () => {
+    const select = document.getElementById('persona-filter');
+
+    while (select.children.length > 1) {
+      select.removeChild(select.lastChild);
+    }
+
+    this.people.forEach(person => {
+      const option = document.createElement('option');
+      option.value = person.id;
+      option.textContent = `${person.nombre} ${person.apellido}`;
+      select.appendChild(option);
+    });
+  }
+
+  
+  renderTasks = (tasks) => {
+    const container = document.getElementById('tareas-container');
+
+    if (tasks.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">No tasks found with selected filters</p>';
+      return;
+    }
+
+    container.innerHTML = tasks.map(task => this.renderTaskItem(task)).join('');
+  }
+
+  renderTaskItem = (task) => {
+    const statusClass = task.completada ? 'completada' : 'pendiente';
+    const statusText = task.completada ? 'Completed' : 'Pending';
+    const statusIcon = task.completada ? '✅' : '⏳';
+
+    return `
+            <div class="tarea-item ${statusClass}">
+                <div class="tarea-header">
+                    <div class="tarea-title">${statusIcon} ${task.tarea.titulo}</div>
+                    <div class="tarea-meta">
+                        <span>👤 ${task.person_name}</span>
+                        <span>📁 ${task.tarea.tipo_tarea}</span>
+                    </div>
+                </div>
+                <div class="tarea-meta" style="margin-bottom: 10px;">${task.tarea.descripcion}</div>
+                <div class="tarea-meta">
+                    <span>📅 Start: ${this.formatDate(task.tarea.fecha_inicio)}</span> | 
+                    <span>🎯 End: ${this.formatDate(task.tarea.fecha_fin)}</span> | 
+                    <span><strong>Status:</strong> ${statusText}</span>
+                </div>
+            </div>
+        `;
+  }
+
+  formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  showLoading = (containerId) => {
+    document.getElementById(containerId).innerHTML = '<div class="loading">Loading...</div>';
+  }
+
+  showError = (message) => {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+
+    setTimeout(() => {
+      errorDiv.style.display = 'none';
+    }, 5000);
+  }
+
+  reloadTasks = () => this.loadAllTasks()
+}
+
+let tasksUI;
+
+document.addEventListener('DOMContentLoaded', function () {
+  tasksUI = new TasksUI();
+});
+
+const loadTasks = () => {
+  if (tasksUI) {
+    tasksUI.loadTasks();
+  }
+}

@@ -60,17 +60,41 @@ python manage.py createsuperuser
 
 ### Custom APIs:
 
-- `GET /proyecto/tareas-estadisticas` - Estadísticas de tareas (totales, completadas, por tipo, etc.)
-- `GET /proyecto/personas/{persona_id}/tareas` - Todas las tareas asignadas a una persona específica
+- `GET /proyecto/tareas-estadisticas/` - Estadísticas generales de tareas (totales, completadas, pendientes, porcentaje)
+- `GET /proyecto/personas/{persona_id}/tareas/` - Todas las tareas asignadas a una persona específica
+- `GET /proyecto/todas-tareas/` - Todas las tareas asignadas del sistema con información de personas
+
+### Frontend Interface:
+
+- `GET /proyecto/tareas/` - Interfaz web para gestión y visualización de tareas
 
 ### Parámetros de búsqueda y ordenamiento:
 
-- **Personas:** `?search=nombre` `?ordering=apellido`
+- **Personas:** `?search=nombre` `?ordering=apellido` `?ordering=nombre`
 - **Tipos Tarea:** `?ordering=prioridad` `?ordering=nombre`
+
+### Ejemplos de uso:
+
+```bash
+# Obtener todas las personas
+curl http://localhost:8000/proyecto/personas/
+
+# Buscar persona por nombre
+curl http://localhost:8000/proyecto/personas/?search=Roberto
+
+# Obtener estadísticas de tareas
+curl http://localhost:8000/proyecto/tareas-estadisticas/
+
+# Obtener tareas de una persona específica
+curl http://localhost:8000/proyecto/personas/1/tareas/
+
+# Obtener todas las tareas asignadas
+curl http://localhost:8000/proyecto/todas-tareas/
+```
 
 ### Autenticación:
 
-- AllowAny (sin requerir autenticación para desarrollo)
-- Session Authentication (para admin de Django es user:admin / pass:admin)
+- **AllowAny** (sin requerir autenticación para desarrollo)
+- **Session Authentication** (para admin de Django es user:admin / pass:admin)
 
 Todos los endpoints tienen acceso público sin requerir autenticación.
