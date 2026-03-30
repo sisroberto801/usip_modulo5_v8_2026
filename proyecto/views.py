@@ -1,13 +1,13 @@
 from django.db.models import Count
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
 
 from .models import Persona, TipoTarea, Tarea, TareaAsignada
 from .serializers import (
-    PersonaSerializer, TipoTareaSerializer, TareaSerializer, TareaAsignadaSerializer
+    PersonaSerializer, TipoTareaSerializer
 )
 
 
@@ -39,15 +39,15 @@ def tareas_estadisticas(request):
     total_tareas = TareaAsignada.objects.count()
     tareas_completadas = TareaAsignada.objects.filter(completada=True).count()
     tareas_pendientes = total_tareas - tareas_completadas
-    
+
     tareas_por_tipo = Tarea.objects.values('tipo_tarea__nombre').annotate(
         count=Count('id')
     ).order_by('-count')
-    
+
     asignaciones_por_persona = TareaAsignada.objects.values('persona__nombre', 'persona__apellido').annotate(
         count=Count('id')
     ).order_by('-count')[:10]
-    
+
     data = {
         'total_tareas': total_tareas,
         'tareas_completadas': tareas_completadas,
@@ -56,19 +56,22 @@ def tareas_estadisticas(request):
         'tareas_por_tipo': list(tareas_por_tipo),
         'top_personas_asignadas': list(asignaciones_por_persona)
     }
-    
+
     return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def tareas_por_persona(request, persona_id):
-    """
-    API personalizada que devuelve todas las tareas asignadas a una persona específica
-    """
     try:
         persona = Persona.objects.get(id=persona_id)
         tareas_asignadas = TareaAsignada.objects.filter(persona=persona).select_related('tarea', 'tarea__tipo_tarea')
-        
+
+        estado = request.GET.get('estado', '').lower()
+        if estado == 'completed':
+            tareas_asignadas = tareas_asignadas.filter(completada=True)
+        elif estado == 'pending':
+            tareas_asignadas = tareas_asignadas.filter(completada=False)
+
         data = []
         for asignacion in tareas_asignadas:
             data.append({
@@ -85,7 +88,7 @@ def tareas_por_persona(request, persona_id):
                 'fecha_asignacion': asignacion.fecha_asignacion,
                 'completada': asignacion.completada
             })
-        
+
         return Response({
             'persona': {
                 'id': persona.id,
@@ -97,18 +100,22 @@ def tareas_por_persona(request, persona_id):
             'total_tareas': len(data),
             'tareas_completadas': len([t for t in data if t['completada']])
         }, status=status.HTTP_200_OK)
-        
+
     except Persona.DoesNotExist:
         return Response({'error': 'Persona no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def todas_tareas(request):
-    """
-    API personalizada que devuelve todas las tareas asignadas del sistema
-    """
     tareas_asignadas = TareaAsignada.objects.all().select_related('persona', 'tarea', 'tarea__tipo_tarea')
-    
+
+    estado = request.GET.get('estado', '').lower()
+
+    if estado == 'completed':
+        tareas_asignadas = tareas_asignadas.filter(completada=True)
+    elif estado == 'pending':
+        tareas_asignadas = tareas_asignadas.filter(completada=False)
+
     data = []
     for asignacion in tareas_asignadas:
         data.append({
@@ -131,7 +138,7 @@ def todas_tareas(request):
             'fecha_asignacion': asignacion.fecha_asignacion,
             'completada': asignacion.completada
         })
-    
+
     return Response({
         'tareas_asignadas': data,
         'total_tareas': len(data),

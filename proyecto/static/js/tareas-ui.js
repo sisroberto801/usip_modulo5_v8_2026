@@ -6,12 +6,7 @@ class TasksUI {
   }
 
   init = () => {
-    this.setupEventListeners();
     this.loadInitialData();
-  }
-
-  setupEventListeners = () => {
-    document.getElementById('estado-filter').addEventListener('change', () => this.applyLocalFilters());
   }
 
   loadInitialData = async () => {
@@ -19,7 +14,7 @@ class TasksUI {
       // Load people and statistics first
       await this.loadPeople();
       await this.loadStatistics();
-      
+
       // Load all tasks initially
       await this.loadAllTasks();
     } catch (error) {
@@ -31,10 +26,9 @@ class TasksUI {
   loadAllTasks = async () => {
     try {
       this.showLoading('tareas-container');
-      console.log('Loading all tasks...');
-      this.tasks = await tasksAPI.getAllTasks();
-      console.log('Tasks loaded:', this.tasks);
-      this.applyLocalFilters();
+      const status = document.getElementById('estado-filter').value;
+      this.tasks = await tasksAPI.getAllTasks(status);
+      this.renderTasks(this.tasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
       this.showError('Error loading tasks');
@@ -45,49 +39,37 @@ class TasksUI {
   applyLocalFilters = () => {
     const personId = document.getElementById('persona-filter').value;
     const status = document.getElementById('estado-filter').value;
-    
-    console.log('Applying local filters - PersonId:', personId, 'Status:', status);
-    console.log('Available tasks:', this.tasks);
-    
+
     let filteredTasks = this.tasks;
-    
-    // Filter by person
+
     if (personId) {
       filteredTasks = filteredTasks.filter(task => task.person_id == personId);
     }
-    
-    // Filter by status
+
     if (status) {
       const isCompleted = status === 'completada';
       filteredTasks = filteredTasks.filter(task => task.completada === isCompleted);
     }
-    
-    console.log('Filtered tasks:', filteredTasks);
+
     this.renderTasks(filteredTasks);
   }
 
   loadTasks = async () => {
     const personId = document.getElementById('persona-filter').value;
-    console.log('Update button clicked - Current personId:', personId);
+    const status = document.getElementById('estado-filter').value;
 
     try {
       if (personId) {
-        // Load tasks for specific person
         this.showLoading('tareas-container');
-        console.log('Loading tasks for person:', personId);
-        const data = await tasksAPI.getTasksByPerson(personId);
-        console.log('Person tasks response:', data);
-        
-        // Transform data to match expected format
+        const data = await tasksAPI.getTasksByPerson(personId, status);
+
         const personTasks = data.tareas_asignadas || [];
         this.tasks = personTasks.map(task => ({
           ...task,
           person_name: `${data.persona.nombre} ${data.persona.apellido}`,
           person_id: data.persona.id
         }));
-        console.log('Transformed person tasks:', this.tasks);
       } else {
-        // Load all tasks when "Todas" is selected
         await this.loadAllTasks();
         return;
       }
@@ -100,7 +82,7 @@ class TasksUI {
     }
   }
 
-  
+
   loadStatistics = async () => {
     try {
       const stats = await tasksAPI.getStatistics();
@@ -158,7 +140,7 @@ class TasksUI {
     });
   }
 
-  
+
   renderTasks = (tasks) => {
     const container = document.getElementById('tareas-container');
 

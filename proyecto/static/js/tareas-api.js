@@ -1,6 +1,6 @@
 class TasksAPI {
     constructor() {
-        this.baseURL = '/proyecto';
+        this.baseURL = '/proyecto/';
     }
 
     request = async (endpoint, options = {}) => {
@@ -24,26 +24,33 @@ class TasksAPI {
         }
     }
 
-    getStatistics = async () => this.request('/tareas-estadisticas/')
+    getStatistics = async () => this.request('tareas-estadisticas')
 
-    getPeople = async () => this.request('/personas')
+    getPeople = async () => this.request('personas')
 
-    getTasksByPerson = async (personId) => this.request(`/personas/${personId}/tareas/`)
+    getTasksByPerson = async (personId, estado = null) => {
+        let endpoint = `personas/${personId}/tareas`;
+        if (estado) {
+            endpoint += `?estado=${encodeURIComponent(estado)}`;
+        }
+        return this.request(endpoint);
+    }
 
-    getAllTasks = async () => {
+    getAllTasks = async (estado = null) => {
         try {
-            console.log('Getting all tasks from /todas-tareas/');
-            const data = await this.request('/todas-tareas/');
-            console.log('All tasks response:', data);
+            let endpoint = 'todas-tareas';
+            if (estado) {
+                endpoint += `?estado=${encodeURIComponent(estado)}`;
+            }
             
-            // Transform the data to match the expected format
+            const data = await this.request(endpoint);
+            
             const transformedTasks = data.tareas_asignadas.map(task => ({
                 ...task,
                 person_name: `${task.persona.nombre} ${task.persona.apellido}`,
                 person_id: task.persona.id
             }));
             
-            console.log('Transformed tasks:', transformedTasks);
             return transformedTasks;
         } catch (error) {
             console.error('Error getting all tasks:', error);
