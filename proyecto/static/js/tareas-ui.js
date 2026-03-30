@@ -97,19 +97,19 @@ class TasksUI {
     document.getElementById('stats').innerHTML = `
             <div class="stat-card">
                 <div class="stat-number">${stats.total_tareas}</div>
-                <div>Total Tasks</div>
+                <div>Total</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">${stats.tareas_completadas}</div>
-                <div>Completed</div>
+                <div>Completados</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">${stats.tareas_pendientes}</div>
-                <div>Pending</div>
+                <div>Pendientes</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">${stats.porcentaje_completado}%</div>
-                <div>% Completed</div>
+                <div>% Completados</div>
             </div>
         `;
   }
@@ -145,7 +145,7 @@ class TasksUI {
     const container = document.getElementById('tareas-container');
 
     if (tasks.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">No tasks found with selected filters</p>';
+      container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">No se encontro tareas...</p>';
       return;
     }
 

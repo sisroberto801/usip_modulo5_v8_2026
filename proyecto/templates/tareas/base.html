@@ -20,26 +20,27 @@
             <div class="loading">Loading statistics...</div>
         </section>
 
-        <section class="filters">
-            <div class="filter-group">
-                <label for="persona-filter">Filtrar por persona:</label>
-                <select id="persona-filter">
-                    <option value="">Todas las personas</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="estado-filter">Estado:</label>
-                <select id="estado-filter">
-                    <option value="">Todos</option>
-                    <option value="completed">Completadas</option>
-                    <option value="pending">Pendientes</option>
-                </select>
-            </div>
-            <button class="btn btn-primary" onclick="loadTasks()">Buscar</button>
-        </section>
-
         <main class="tareas-list">
-            <h2>Lista de Tareas</h2>
+            <div class="tareas-header">
+                <h2>Lista de Tareas</h2>
+                <section class="filters">
+                    <div class="filter-group">
+                        <label for="persona-filter">Filtrar por persona:</label>
+                        <select id="persona-filter">
+                            <option value="">Todas las personas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="estado-filter">Estado:</label>
+                        <select id="estado-filter">
+                            <option value="">Todos</option>
+                            <option value="completed">Completadas</option>
+                            <option value="pending">Pendientes</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadTasks()">Buscar</button>
+                </section>
+            </div>
             <div id="tareas-container">
                 <div class="loading">Loading tasks...</div>
             </div>
